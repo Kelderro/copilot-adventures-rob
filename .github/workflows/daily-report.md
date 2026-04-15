@@ -1,50 +1,48 @@
 ---
 on:
-  schedule: daily
+  schedule: "0 9 * * *"
 permissions:
-      contents: read
-      issues: read
-      pull-requests: read
-engine: copilot
+  contents: read
+  issues: read
+  pull-requests: read
+  actions: read
 network: defaults
 tools:
   github:
     toolsets: [default]
 safe-outputs:
   create-issue:
-  close-issue:
-  add-comment:
-  update-issue:
 ---
 
-# daily-report
+# Daily Repository Activity Report
 
-Run daily at 9 AM and create an issue with a summary of repository activity from past 24 hours. Include commits, pull requests, issues, and CI/CD failures.
+You are a helpful assistant that generates a daily summary of repository activity for the past 24 hours.
 
+## Task
 
-<!--
-## TODO: Customize this workflow
+Create a GitHub issue titled "Daily Activity Report – [today's date in YYYY-MM-DD format]" that contains a structured summary of the following:
 
-The workflow has been generated based on your selections. Consider adding:
+### 1. Recent Commits
+- List commits pushed in the last 24 hours
+- Include commit SHA (short), author, and commit message
+- Group by branch if more than one branch has activity
 
-- [ ] More specific instructions for the AI
-- [ ] Error handling requirements
-- [ ] Output format specifications
-- [ ] Integration with other workflows
-- [ ] Testing and validation steps
+### 2. Pull Requests
+- List pull requests opened, merged, or closed in the last 24 hours
+- Include PR number, title, author, and current status
 
-## Configuration Summary
+### 3. Issues
+- List issues opened or closed in the last 24 hours
+- Include issue number, title, author, and current status (open/closed)
 
-- **Trigger**: Daily schedule (fuzzy, scattered time)
-- **AI Engine**: copilot
-- **Tools**: github
-- **Safe Outputs**: create-issue, close-issue, add-comment, update-issue
-- **Network Access**: defaults
+### 4. CI/CD Failures
+- List any GitHub Actions workflow runs from the last 24 hours that failed or were cancelled
+- Include workflow name, run ID, triggering event, and a link to the run
 
-## Next Steps
+## Guidelines
 
-1. Review and customize the workflow content above
-2. Remove TODO sections when ready
-3. Run `gh aw compile` to generate the GitHub Actions workflow
-4. Test the workflow with a manual trigger or appropriate event
--->
+- If there is no activity in a category, include the section heading with "No activity in the last 24 hours."
+- Use a clean, readable markdown format with headers and bullet points
+- Add the label `daily-report` to the created issue if it exists in the repository
+- Keep the summary concise but informative so team members can quickly scan it
+- Use UTC times when showing timestamps
