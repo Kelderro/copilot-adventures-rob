@@ -3,48 +3,68 @@ name: CI
 on:
   push:
     branches: [ main ]
+    # Only trigger when solution code or workflow config changes
+    paths:
+      - 'Solutions/**'
+      - '.github/workflows/ci.yml'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'Solutions/**'
+      - '.github/workflows/ci.yml'
 
 jobs:
   build-csharp:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      
+
+      # Cache NuGet packages to speed up restore on subsequent runs
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('Solutions/CSharp/**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
       - name: Build C# Solutions
         run: dotnet build Solutions/CSharp/CopilotAdventures.sln
-  
+
   build-javascript:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      
+
       - name: Validate JavaScript Files
+        # Use find to include files in subdirectories (e.g., The-Gridlock-Arena-of-Mythos/)
         run: |
-          for f in Solutions/JavaScript/*.js; do node --check "$f"; done
+          find Solutions/JavaScript -name "*.js" -exec node --check {} \;
           echo "JavaScript syntax validation passed"
-  
+
   build-python:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      
+
       - name: Validate Python Files
         run: |
           python -m py_compile Solutions/Python/*.py
